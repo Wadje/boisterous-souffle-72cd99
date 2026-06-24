@@ -1,0 +1,69 @@
+
+> devlopsite@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.187:3000
+- Environments: .env.local, .env
+✓ Ready in 676ms
+
+ GET /giris 200 in 675ms (next.js: 263ms, application-code: 411ms)
+ GET /api/auth/login 307 in 115ms (next.js: 87ms, application-code: 28ms)
+ GET / 200 in 366ms (next.js: 50ms, application-code: 316ms)
+ GET /api/auth/me 200 in 71ms (next.js: 53ms, application-code: 18ms)
+ GET /api/auth/login 307 in 30ms (next.js: 5ms, application-code: 25ms)
+ GET /api/auth/me 200 in 19ms (next.js: 5ms, application-code: 13ms)
+ GET / 200 in 147ms (next.js: 5ms, application-code: 142ms)
+ GET /api/auth/me 200 in 23ms (next.js: 4ms, application-code: 19ms)
+ GET /api/auth/login 307 in 26ms (next.js: 4ms, application-code: 21ms)
+ GET /api/auth/callback?code=gBg6zc7nJr18xj50Hxg0VxeaoBLqnw&state=87281cee-01c6-4f45-b1fb-668124869c9d 307 in 2.8s (next.js: 237ms, application-code: 2.6s)
+ GET /panel 200 in 1502ms (next.js: 682ms, application-code: 820ms)
+ GET /api/auth/me 200 in 173ms (next.js: 4ms, application-code: 168ms)
+ POST /api/auth/logout 303 in 177ms (next.js: 163ms, application-code: 14ms)
+ GET / 200 in 171ms (next.js: 6ms, application-code: 166ms)
+ GET /api/auth/me 200 in 18ms (next.js: 4ms, application-code: 14ms)
+ GET /api/auth/login 307 in 13ms (next.js: 4ms, application-code: 8ms)
+ GET /api/auth/me 200 in 26ms (next.js: 4ms, application-code: 22ms)
+  Reload env: .env.local
+ GET / 200 in 160ms (next.js: 92ms, application-code: 68ms)
+ GET / 200 in 311ms (next.js: 8ms, application-code: 303ms)
+ GET /api/auth/me 200 in 71ms (next.js: 55ms, application-code: 17ms)
+ GET /api/auth/login 307 in 44ms (next.js: 35ms, application-code: 9ms)
+ GET /giris?error=config 200 in 184ms (next.js: 34ms, application-code: 149ms)
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /api/auth/me 200 in 26ms (next.js: 5ms, application-code: 21ms)
+ GET / 200 in 136ms (next.js: 7ms, application-code: 130ms)
+ GET /api/auth/me 200 in 18ms (next.js: 5ms, application-code: 12ms)
+ GET /api/auth/login 307 in 10ms (next.js: 4ms, application-code: 7ms)
+ GET /giris?error=config 200 in 65ms (next.js: 5ms, application-code: 59ms)
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /api/auth/login 307 in 13ms (next.js: 4ms, application-code: 8ms)
+ GET /giris?error=config 200 in 68ms (next.js: 6ms, application-code: 62ms)
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /api/auth/login 307 in 10ms (next.js: 4ms, application-code: 6ms)
+ GET /giris?error=config 200 in 60ms (next.js: 5ms, application-code: 55ms)
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /giris?error=config 200 in 57ms (next.js: 5ms, application-code: 52ms)
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /api/auth/me 200 in 15ms (next.js: 4ms, application-code: 11ms)
+ GET /api/auth/login 307 in 11ms (next.js: 4ms, application-code: 7ms)
+ GET /giris?error=config 200 in 62ms (next.js: 5ms, application-code: 57ms)
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /api/auth/login 307 in 10ms (next.js: 4ms, application-code: 6ms)
+ GET /giris?error=config 200 in 59ms (next.js: 5ms, application-code: 54ms)
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /api/auth/me 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ GET / 200 in 144ms (next.js: 6ms, application-code: 138ms)
+ GET /api/auth/me 200 in 22ms (next.js: 4ms, application-code: 17ms)
+ GET /api/auth/login 307 in 11ms (next.js: 4ms, application-code: 7ms)
+ GET /giris?error=config 200 in 62ms (next.js: 5ms, application-code: 56ms)
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /api/auth/login 307 in 9ms (next.js: 4ms, application-code: 6ms)
+ GET /giris?error=config 200 in 58ms (next.js: 5ms, application-code: 53ms)
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/devlooplogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+^C
