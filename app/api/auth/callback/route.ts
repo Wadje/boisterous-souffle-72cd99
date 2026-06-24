@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { getIronSession } from "iron-session";
 import { exchangeCode, fetchDiscordUser } from "@/lib/discord";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { sessionOptions, type SessionData } from "@/lib/session";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -17,7 +18,6 @@ export async function GET(req: Request) {
   if (!code || !state || !savedState || state !== savedState) {
     return fail("state");
   }
-  cookieStore.delete("discord_oauth_state");
 
   try {
     const { access_token } = await exchangeCode(code);
@@ -41,11 +41,15 @@ export async function GET(req: Request) {
       },
     });
 
-    const session = await getSession();
+    // Çerezleri (session + state temizliği) doğrudan redirect yanıtına yazıyoruz.
+    const res = NextResponse.redirect(new URL("/panel", req.url));
+    res.cookies.delete("discord_oauth_state");
+
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
     session.userId = user.id;
     await session.save();
 
-    return NextResponse.redirect(new URL("/panel", req.url));
+    return res;
   } catch {
     return fail("oauth");
   }

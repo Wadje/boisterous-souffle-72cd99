@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { buildAuthorizeUrl, isDiscordConfigured } from "@/lib/discord";
 
 export async function GET(req: Request) {
@@ -8,14 +7,16 @@ export async function GET(req: Request) {
   }
 
   const state = crypto.randomUUID();
-  const cookieStore = await cookies();
-  cookieStore.set("discord_oauth_state", state, {
+
+  // Çerezi doğrudan yanıt nesnesine yazıyoruz; cookies().set() + redirect()
+  // kombinasyonu bazı runtime'larda (ör. Netlify) Set-Cookie'yi eklemiyor.
+  const res = NextResponse.redirect(buildAuthorizeUrl(state));
+  res.cookies.set("discord_oauth_state", state, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: 600,
   });
-
-  return NextResponse.redirect(buildAuthorizeUrl(state));
+  return res;
 }

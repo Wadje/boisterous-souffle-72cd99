@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { getIronSession } from "iron-session";
+import { sessionOptions, type SessionData } from "@/lib/session";
 
 export async function POST(req: Request) {
-  const session = await getSession();
+  // Oturum çerezini doğrudan redirect yanıtına işliyoruz ki Set-Cookie düşmesin.
+  const res = NextResponse.redirect(new URL("/", req.url), { status: 303 });
+  const session = await getIronSession<SessionData>(req, res, sessionOptions);
   session.destroy();
-  return NextResponse.redirect(new URL("/", req.url), { status: 303 });
+  return res;
 }
