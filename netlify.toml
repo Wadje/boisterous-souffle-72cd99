@@ -1,0 +1,12 @@
+# Netlify yapılandırması — Next.js (App Router) + Prisma
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Next.js'i Netlify'da çalıştıran resmi eklenti (SSR, route handler, server actions).
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

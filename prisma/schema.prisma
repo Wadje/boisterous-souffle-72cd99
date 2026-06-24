@@ -1,0 +1,56 @@
+generator client {
+  provider      = "prisma-client-js"
+  // "native" yerel geliştirme, "rhel-openssl-3.0.x" Netlify (AWS Lambda) içindir.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  discordId   String   @unique
+  username    String
+  globalName  String?
+  avatar      String?
+  email       String?
+  createdAt   DateTime @default(now())
+  lastLoginAt DateTime @default(now())
+
+  profile   Profile?
+  transfers Transfer[]
+}
+
+model Profile {
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  billingType String  @default("bireysel") // bireysel | kurumsal
+  firstName   String?
+  lastName    String?
+  email       String?
+  address1    String?
+  address2    String?
+  district    String?
+  city        String?
+  postalCode  String?
+  country     String?
+  tcNo        String?
+  taxOffice   String?
+  taxNo       String?
+  companyName String?
+
+  updatedAt DateTime @updatedAt
+}
+
+model Transfer {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetDiscordId String
+  status          String   @default("beklemede") // beklemede | tamamlandi | reddedildi
+  createdAt       DateTime @default(now())
+}

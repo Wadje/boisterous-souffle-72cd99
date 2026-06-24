@@ -1,0 +1,14 @@
+{
+  "disabledMcpjsonServers": [
+    "chrome-devtools",
+    "github",
+    "ios-simulator",
+    "fb-ads-mcp-server",
+    "google-ads"
+  ],
+  "permissions": {
+    "allow": [
+      "PowerShell(npm *)"
+    ]
+  }
+}
