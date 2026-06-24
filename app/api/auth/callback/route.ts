@@ -46,6 +46,7 @@ export async function GET(req: Request) {
       adminGuilds = undefined;
     }
 
+    // Çekirdek giriş kaydı (guilds olmadan) — bu her zaman çalışmalı.
     const user = await prisma.user.upsert({
       where: { discordId: du.id },
       create: {
@@ -54,7 +55,6 @@ export async function GET(req: Request) {
         globalName: du.global_name,
         avatar: du.avatar,
         email: du.email ?? null,
-        ...(adminGuilds !== undefined ? { guilds: adminGuilds } : {}),
       },
       update: {
         username: du.username,
@@ -62,9 +62,21 @@ export async function GET(req: Request) {
         avatar: du.avatar,
         email: du.email ?? null,
         lastLoginAt: new Date(),
-        ...(adminGuilds !== undefined ? { guilds: adminGuilds } : {}),
       },
     });
+
+    // Sunucu listesini ayrıca, en iyi çaba ile yaz. (guilds kolonu/migration
+    // henüz yoksa burada hata olsa bile giriş bozulmaz.)
+    if (adminGuilds !== undefined) {
+      try {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { guilds: adminGuilds },
+        });
+      } catch {
+        /* kolon yoksa yok say — db push sonrası dolacak */
+      }
+    }
 
     // Çerezleri (session + state temizliği) doğrudan redirect yanıtına yazıyoruz.
     const res = NextResponse.redirect(new URL("/panel", req.url));
