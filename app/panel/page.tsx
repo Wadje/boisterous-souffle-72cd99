@@ -3,25 +3,26 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   Activity,
-  Bot,
   Calendar,
   FileText,
   Globe,
   Hash,
   LayoutGrid,
   Mail,
-  Package,
+  Receipt,
+  Settings,
 } from "lucide-react";
 import { Background } from "@/components/Background";
 import { Navbar } from "@/components/Navbar";
 import { DiscordIcon } from "@/components/BrandIcons";
 import { getCurrentUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 const QUICK = [
-  { label: "Bot Yönetimi", desc: "Botlarını yönet", Icon: Bot, href: "/#botlar" },
-  { label: "Hizmetler", desc: "Sahip olduğun hizmetler", Icon: Package, href: "/#paketler" },
-  { label: "Websiteler", desc: "Web sitelerini yönet", Icon: Globe, href: "/#websiteler" },
-  { label: "Faturalarım", desc: "Faturalarını görüntüle", Icon: FileText, href: "/hesap" },
+  { label: "Satın Alımlar", desc: "Aldığın ürünler", Icon: Receipt, href: "/panel/satin-alimlar" },
+  { label: "Bot Yönetimi", desc: "Botlarını ayarla", Icon: Settings, href: "/panel/botlar" },
+  { label: "Hesabım", desc: "Profil & fatura bilgileri", Icon: FileText, href: "/hesap" },
+  { label: "Websiteler", desc: "Web sitelerini gör", Icon: Globe, href: "/#websiteler" },
 ];
 
 function fmtDate(d: Date) {
@@ -33,6 +34,16 @@ export default async function PanelPage() {
   if (!user) redirect("/giris");
 
   const name = user.globalName || user.username;
+
+  const [orderCount, ownedBots] = await Promise.all([
+    prisma.order.count({ where: { userId: user.id } }),
+    prisma.orderItem.findMany({
+      where: { kind: "bot", order: { userId: user.id, status: "aktif" } },
+      distinct: ["productId"],
+      select: { productId: true },
+    }),
+  ]);
+  const activeBotCount = ownedBots.length;
 
   return (
     <>
@@ -91,8 +102,8 @@ export default async function PanelPage() {
             İstatistikler
           </h2>
           <div className="grid grid-cols-2 gap-4">
-            <Stat label="Aktif Bot" value={0} />
-            <Stat label="Toplam Sipariş" value={0} />
+            <Stat label="Aktif Bot" value={activeBotCount} />
+            <Stat label="Toplam Sipariş" value={orderCount} />
           </div>
         </section>
 

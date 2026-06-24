@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getIronSession } from "iron-session";
-import { exchangeCode, fetchDiscordUser } from "@/lib/discord";
+import type { Prisma } from "@prisma/client";
+import {
+  exchangeCode,
+  fetchDiscordUser,
+  fetchUserGuilds,
+  isGuildAdmin,
+} from "@/lib/discord";
 import { prisma } from "@/lib/prisma";
 import { sessionOptions, type SessionData } from "@/lib/session";
 
@@ -23,6 +29,23 @@ export async function GET(req: Request) {
     const { access_token } = await exchangeCode(code);
     const du = await fetchDiscordUser(access_token);
 
+    // Kullanıcının yönetici olduğu sunucuları çek (guilds kapsamı verildiyse).
+    let adminGuilds: Prisma.InputJsonValue | undefined;
+    try {
+      const guilds = await fetchUserGuilds(access_token);
+      adminGuilds = guilds
+        .filter(isGuildAdmin)
+        .map((g) => ({
+          id: g.id,
+          name: g.name,
+          icon: g.icon,
+          owner: g.owner,
+          permissions: g.permissions,
+        }));
+    } catch {
+      adminGuilds = undefined;
+    }
+
     const user = await prisma.user.upsert({
       where: { discordId: du.id },
       create: {
@@ -31,6 +54,7 @@ export async function GET(req: Request) {
         globalName: du.global_name,
         avatar: du.avatar,
         email: du.email ?? null,
+        ...(adminGuilds !== undefined ? { guilds: adminGuilds } : {}),
       },
       update: {
         username: du.username,
@@ -38,6 +62,7 @@ export async function GET(req: Request) {
         avatar: du.avatar,
         email: du.email ?? null,
         lastLoginAt: new Date(),
+        ...(adminGuilds !== undefined ? { guilds: adminGuilds } : {}),
       },
     });
 

@@ -20,7 +20,8 @@ export function buildAuthorizeUrl(state: string) {
     client_id: process.env.DISCORD_CLIENT_ID!,
     redirect_uri: process.env.DISCORD_REDIRECT_URI!,
     response_type: "code",
-    scope: "identify email",
+    // guilds: kullanıcının sunucularını (yönetici olduğu) listelemek için.
+    scope: "identify email guilds",
     state,
     prompt: "consent",
   });
@@ -70,4 +71,75 @@ export function avatarUrl(discordId: string, avatar: string | null) {
   }
   const ext = avatar.startsWith("a_") ? "gif" : "png";
   return `https://cdn.discordapp.com/avatars/${discordId}/${avatar}.${ext}?size=128`;
+}
+
+/* ----------------------------- Sunucu (guild) ----------------------------- */
+
+const MANAGE_GUILD = BigInt(0x20); // Manage Server izin biti
+
+export type UserGuild = {
+  id: string;
+  name: string;
+  icon: string | null;
+  owner: boolean;
+  permissions: string;
+};
+
+/** Kullanıcının üye olduğu sunucular (OAuth guilds kapsamı gerekir). */
+export async function fetchUserGuilds(accessToken: string): Promise<UserGuild[]> {
+  const res = await fetch(`${API}/users/@me/guilds`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+/** Kullanıcı bu sunucuda yönetici mi (sahip ya da Manage Server)? */
+export function isGuildAdmin(g: { owner: boolean; permissions: string }): boolean {
+  if (g.owner) return true;
+  try {
+    return (BigInt(g.permissions) & MANAGE_GUILD) === MANAGE_GUILD;
+  } catch {
+    return false;
+  }
+}
+
+export function guildIconUrl(id: string, icon: string | null): string | null {
+  if (!icon) return null;
+  const ext = icon.startsWith("a_") ? "gif" : "png";
+  return `https://cdn.discordapp.com/icons/${id}/${icon}.${ext}?size=64`;
+}
+
+function botHeaders(): HeadersInit {
+  return { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` };
+}
+
+/** Botun bulunduğu sunucuların id kümesi (bot token gerekir). */
+export async function fetchBotGuildIds(): Promise<Set<string>> {
+  if (!process.env.DISCORD_BOT_TOKEN) return new Set();
+  const res = await fetch(`${API}/users/@me/guilds?limit=200`, {
+    headers: botHeaders(),
+    cache: "no-store",
+  });
+  if (!res.ok) return new Set();
+  const list = (await res.json()) as { id: string }[];
+  return new Set(list.map((g) => g.id));
+}
+
+export type GuildChannel = { id: string; name: string; type: number; position: number };
+
+/** Bir sunucunun yazı kanalları (log kanalı seçimi için, bot token gerekir). */
+export async function fetchGuildTextChannels(guildId: string): Promise<GuildChannel[]> {
+  if (!process.env.DISCORD_BOT_TOKEN) return [];
+  const res = await fetch(`${API}/guilds/${guildId}/channels`, {
+    headers: botHeaders(),
+    cache: "no-store",
+  });
+  if (!res.ok) return [];
+  const list = (await res.json()) as GuildChannel[];
+  // 0 = GUILD_TEXT, 5 = GUILD_ANNOUNCEMENT
+  return list
+    .filter((c) => c.type === 0 || c.type === 5)
+    .sort((a, b) => a.position - b.position);
 }

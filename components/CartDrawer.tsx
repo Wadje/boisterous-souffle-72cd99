@@ -1,12 +1,38 @@
 "use client";
 
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { Loader2, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { keyOf, useCart } from "@/context/CartContext";
 import { formatTRY } from "@/lib/utils";
+import { checkout } from "@/app/panel/actions";
 
 export function CartDrawer() {
   const { items, isOpen, close, total, increment, decrement, remove, clear } = useCart();
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleCheckout = () => {
+    setError(null);
+    startTransition(async () => {
+      const res = await checkout(
+        items.map((i) => ({ id: i.id, periodLabel: i.periodLabel, qty: i.qty })),
+      );
+      if (res.ok) {
+        clear();
+        close();
+        router.push("/panel/satin-alimlar");
+        router.refresh();
+      } else if ("redirect" in res && res.redirect) {
+        close();
+        router.push(res.redirect);
+      } else {
+        setError(("error" in res && res.error) || "Bir hata oluştu.");
+      }
+    });
+  };
 
   return (
     <AnimatePresence>
@@ -109,9 +135,22 @@ export function CartDrawer() {
                     {formatTRY(total)}
                   </span>
                 </div>
-                <button className="mt-4 w-full rounded-xl bg-gradient-to-r from-violet-deep to-violet py-3.5 text-sm font-semibold text-white transition-shadow hover:shadow-[0_12px_36px_-10px_rgba(124,58,237,0.9)]">
-                  Ödemeye Geç
+                {error && (
+                  <p className="mt-3 rounded-lg border border-magenta/40 bg-magenta/10 px-3 py-2 text-xs text-paper">
+                    {error}
+                  </p>
+                )}
+                <button
+                  onClick={handleCheckout}
+                  disabled={pending}
+                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-deep to-violet py-3.5 text-sm font-semibold text-white transition-shadow hover:shadow-[0_12px_36px_-10px_rgba(124,58,237,0.9)] disabled:opacity-60"
+                >
+                  {pending && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {pending ? "İşleniyor…" : "Satın Al"}
                 </button>
+                <p className="mt-2 text-center text-[11px] text-muted-2">
+                  Test modu: ödeme alınmaz, sipariş anında aktif olur.
+                </p>
               </div>
             )}
           </motion.aside>

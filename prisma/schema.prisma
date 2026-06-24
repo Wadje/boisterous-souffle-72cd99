@@ -19,8 +19,52 @@ model User {
   createdAt   DateTime @default(now())
   lastLoginAt DateTime @default(now())
 
-  profile   Profile?
-  transfers Transfer[]
+  // Kullanıcının yönetici (Manage Server) olduğu sunucuların son giriş anındaki
+  // anlık görüntüsü: [{ id, name, icon, owner, permissions }]
+  guilds      Json?
+
+  profile    Profile?
+  transfers  Transfer[]
+  orders     Order[]
+  botConfigs BotConfig[]
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  total     Float
+  status    String      @default("aktif") // aktif | beklemede | iptal
+  createdAt DateTime    @default(now())
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id          String @id @default(cuid())
+  orderId     String
+  order       Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  title       String
+  kind        String // bot | paket | website | hizmet
+  unitPrice   Float
+  periodLabel String
+  qty         Int    @default(1)
+}
+
+model BotConfig {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId       String // hangi bot (BOTS[].id)
+  guildId         String
+  guildName       String?
+  logChannelId    String?
+  enabledCommands Json? // string[] — açık komut/özellik anahtarları
+  settings        Json? // ileride genişleyecek ek ayarlar
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, productId, guildId])
 }
 
 model Profile {
