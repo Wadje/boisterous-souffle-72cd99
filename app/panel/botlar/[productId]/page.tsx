@@ -164,6 +164,14 @@ export default async function BotYonetimPage({
               })}
             </div>
           )}
+
+          <p className="mt-6 text-xs text-muted-2">
+            Botu yeni ekledin ama sunucu görünmüyor mu?{" "}
+            <a href="/api/auth/login" className="text-violet-bright hover:underline">
+              Sunucu listeni yenile
+            </a>{" "}
+            (Discord ile tekrar giriş).
+          </p>
         </div>
       </Shell>
     );
