@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { botDef } from "@/lib/bots";
+import { botInviteUrl, botToken } from "@/lib/botApps";
 import { fetchBotGuildIds, fetchGuildTextChannels, guildIconUrl } from "@/lib/discord";
 import { BotSettingsForm } from "./BotSettingsForm";
 
@@ -17,12 +18,6 @@ type StoredGuild = {
   owner: boolean;
   permissions: string;
 };
-
-function botInviteUrl() {
-  const cid = process.env.DISCORD_CLIENT_ID;
-  if (!cid) return null;
-  return `https://discord.com/oauth2/authorize?client_id=${cid}&scope=bot+applications.commands&permissions=8`;
-}
 
 export default async function BotYonetimPage({
   params,
@@ -86,9 +81,10 @@ export default async function BotYonetimPage({
     );
   }
 
-  const botGuildIds = await fetchBotGuildIds();
+  const token = botToken(productId);
+  const botGuildIds = await fetchBotGuildIds(token);
   const manageable = adminGuilds.filter((g) => botGuildIds.has(g.id));
-  const invite = botInviteUrl();
+  const invite = botInviteUrl(productId);
 
   // Sunucu seçilmemişse → liste
   if (!selectedGuildId) {
@@ -100,9 +96,21 @@ export default async function BotYonetimPage({
             <ServerCog className="h-5 w-5 text-violet-bright" />
             Sunucu Seç
           </h2>
-          <p className="mb-5 text-sm text-muted">
-            Botun bulunduğu ve senin yönetici olduğun sunucular listelenir.
+          <p className="mb-4 text-sm text-muted">
+            Botu önce sunucuna ekle; eklediğin ve yönetici olduğun sunucular burada listelenir.
           </p>
+
+          {invite && (
+            <a
+              href={invite}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mb-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-deep to-violet px-5 py-2.5 text-sm font-semibold text-white transition-shadow hover:shadow-[0_12px_36px_-10px_rgba(124,58,237,0.9)]"
+            >
+              <Plus className="h-4 w-4" />
+              Botu Sunucuna Ekle
+            </a>
+          )}
 
           {manageable.length === 0 ? (
             <Notice
@@ -156,18 +164,6 @@ export default async function BotYonetimPage({
               })}
             </div>
           )}
-
-          {manageable.length > 0 && invite && (
-            <a
-              href={invite}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 text-sm text-violet-bright hover:underline"
-            >
-              <Plus className="h-4 w-4" />
-              Başka bir sunucuya ekle
-            </a>
-          )}
         </div>
       </Shell>
     );
@@ -197,7 +193,7 @@ export default async function BotYonetimPage({
   }
 
   const [channels, config] = await Promise.all([
-    fetchGuildTextChannels(guild.id),
+    fetchGuildTextChannels(guild.id, token),
     prisma.botConfig.findUnique({
       where: {
         userId_productId_guildId: { userId: user.id, productId, guildId: guild.id },

@@ -111,15 +111,13 @@ export function guildIconUrl(id: string, icon: string | null): string | null {
   return `https://cdn.discordapp.com/icons/${id}/${icon}.${ext}?size=64`;
 }
 
-function botHeaders(): HeadersInit {
-  return { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` };
-}
-
-/** Botun bulunduğu sunucuların id kümesi (bot token gerekir). */
-export async function fetchBotGuildIds(): Promise<Set<string>> {
-  if (!process.env.DISCORD_BOT_TOKEN) return new Set();
+/** Botun bulunduğu sunucuların id kümesi (ilgili botun token'ı gerekir). */
+export async function fetchBotGuildIds(
+  token: string | undefined = process.env.DISCORD_BOT_TOKEN,
+): Promise<Set<string>> {
+  if (!token) return new Set();
   const res = await fetch(`${API}/users/@me/guilds?limit=200`, {
-    headers: botHeaders(),
+    headers: { Authorization: `Bot ${token}` },
     cache: "no-store",
   });
   if (!res.ok) return new Set();
@@ -129,11 +127,14 @@ export async function fetchBotGuildIds(): Promise<Set<string>> {
 
 export type GuildChannel = { id: string; name: string; type: number; position: number };
 
-/** Bir sunucunun yazı kanalları (log kanalı seçimi için, bot token gerekir). */
-export async function fetchGuildTextChannels(guildId: string): Promise<GuildChannel[]> {
-  if (!process.env.DISCORD_BOT_TOKEN) return [];
+/** Bir sunucunun yazı kanalları (log kanalı seçimi için, ilgili botun token'ı gerekir). */
+export async function fetchGuildTextChannels(
+  guildId: string,
+  token: string | undefined = process.env.DISCORD_BOT_TOKEN,
+): Promise<GuildChannel[]> {
+  if (!token) return [];
   const res = await fetch(`${API}/guilds/${guildId}/channels`, {
-    headers: botHeaders(),
+    headers: { Authorization: `Bot ${token}` },
     cache: "no-store",
   });
   if (!res.ok) return [];
