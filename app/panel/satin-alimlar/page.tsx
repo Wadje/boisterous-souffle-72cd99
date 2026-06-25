@@ -1,14 +1,27 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, Bot, Package, Receipt, Settings } from "lucide-react";
+import { ArrowLeft, Bot, Clock, Package, Receipt, Settings } from "lucide-react";
 import { Background } from "@/components/Background";
 import { Navbar } from "@/components/Navbar";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { PERIODS } from "@/lib/data";
 import { formatTRY } from "@/lib/utils";
 
 function fmtDate(d: Date) {
   return new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(d);
+}
+
+const DAY = 24 * 60 * 60 * 1000;
+
+/** Aboneliğin kalan gün bilgisi (1 ay = 30 gün). Dönemi olmayan (tek seferlik) için null. */
+function remaining(createdAt: Date, periodLabel: string) {
+  const period = PERIODS.find((p) => p.label === periodLabel);
+  if (!period) return null;
+  const total = period.months * 30;
+  const expiry = new Date(createdAt.getTime() + total * DAY);
+  const left = Math.ceil((expiry.getTime() - Date.now()) / DAY);
+  return { left, total, expiry };
 }
 
 const KIND_LABEL: Record<string, string> = {
@@ -94,6 +107,26 @@ export default async function SatinAlimlarPage() {
                             {KIND_LABEL[it.kind] ?? it.kind} · {it.periodLabel}
                             {it.qty > 1 ? ` · ${it.qty} adet` : ""}
                           </p>
+                          {(() => {
+                            const r = remaining(order.createdAt, it.periodLabel);
+                            if (!r) return null;
+                            const expired = r.left <= 0;
+                            const soon = !expired && r.left <= 7;
+                            const cls = expired
+                              ? "border-magenta/40 bg-magenta/10 text-magenta"
+                              : soon
+                                ? "border-amber-400/40 bg-amber-400/10 text-amber-300"
+                                : "border-emerald-400/40 bg-emerald-400/10 text-emerald-300";
+                            return (
+                              <span
+                                title={`Bitiş: ${fmtDate(r.expiry)}`}
+                                className={`mt-1.5 inline-flex w-fit items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${cls}`}
+                              >
+                                <Clock className="h-3 w-3" />
+                                {expired ? "Süresi doldu" : `${r.left} gün kaldı`}
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
